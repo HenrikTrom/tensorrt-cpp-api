@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(tensorrt_cpp_api)
+project(tensorrt-cpp-api)
 project(${PROJECT_NAME} VERSION 1.0.0)
 set(TENSORRT_CPP_API_VERSION ${PROJECT_VERSION})
 
@@ -38,30 +38,30 @@ find_package(OpenCV ${OPENCV_VERSION} REQUIRED)
 
 # ============ LIBRARY ============
 
-add_library(tensorrt_cpp_api STATIC
+add_library(${PROJECT_NAME} STATIC
   src/engine.cpp
 )
 
 # use generators to get paths relative to the install prefix:
 target_include_directories(
-  tensorrt_cpp_api PUBLIC 
+  ${PROJECT_NAME} PUBLIC 
   ${OpenCV_INCLUDE_DIRS} 
   ${CUDA_INCLUDE_DIRS} 
   ${TensorRT_INCLUDE_DIRS} 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/interfaces>
   $<INSTALL_INTERFACE:include>  
 )
 target_link_libraries(
-  tensorrt_cpp_api PUBLIC 
+  ${PROJECT_NAME} PUBLIC 
   ${OpenCV_LIBS} ${CUDA_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${TensorRT_LIBRARIES} 
   fmt::fmt
 )
 
 add_executable(run_inference_benchmark src/main.cpp)
-target_link_libraries(run_inference_benchmark tensorrt_cpp_api fmt::fmt)
+target_link_libraries(run_inference_benchmark ${PROJECT_NAME} fmt::fmt)
 
 # ============ INSTALL ============
+include(GNUInstallDirs)
 # install compiled library or executable and to export its build information for later reuse
 install(TARGETS ${PROJECT_NAME}
     EXPORT ${PROJECT_NAME}Targets
@@ -92,10 +92,6 @@ write_basic_package_version_file(
 export(EXPORT ${PROJECT_NAME}Targets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
   # NAMESPACE ${PROJECT_NAME}::
-)
-
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  "include(\"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake\")"
 )
 
 install(FILES

@@ -77,6 +77,14 @@ struct Options {
     int32_t maxBatchSize = 16;
     // GPU device index
     int deviceIndex = 0;
+    // Directory where the engine file should be saved
+    std::string engineFileDir = ".";
+    // Maximum allowed input width
+    int32_t maxInputWidth = -1; // Default to -1 --> expecting fixed input size
+    // Minimum allowed input width
+    int32_t minInputWidth = -1; // Default to -1 --> expecting fixed input size
+    // Optimal input width
+    int32_t optInputWidth = -1; // Default to -1 --> expecting fixed input size
 };
 
 // Class used for int8 calibration
@@ -227,7 +235,7 @@ bool Engine<T>::buildLoadNetwork(std::string onnxModelPath, const std::array<flo
                                  bool normalize) {
     // Only regenerate the engine file if it has not already been generated for
     // the specified options, otherwise load cached version from disk
-    const auto engineName = serializeEngineOptions(m_options, onnxModelPath);
+    const auto engineName = m_options.engineFileDir + serializeEngineOptions(m_options, onnxModelPath);
     std::cout << "Searching for engine file with name: " << engineName << std::endl;
 
     if (Util::doesFileExist(engineName)) {
@@ -491,7 +499,7 @@ bool Engine<T>::build(std::string onnxModelPath, const std::array<float, 3> &sub
     config->addOptimizationProfile(optProfile);
 
     // Set the precision level
-    const auto engineName = serializeEngineOptions(m_options, onnxModelPath);
+    const auto engineName = m_options.engineFileDir+serializeEngineOptions(m_options, onnxModelPath);
     if (m_options.precision == Precision::FP16) {
         // Ensure the GPU supports FP16 inference
         if (!builder->platformHasFastFp16()) {
@@ -546,7 +554,7 @@ bool Engine<T>::build(std::string onnxModelPath, const std::array<float, 3> &sub
     std::ofstream outfile(engineName, std::ofstream::binary);
     outfile.write(reinterpret_cast<const char *>(plan->data()), plan->size());
 
-    std::cout << "Success, saved engine to " << engineName << std::endl;
+    std::cout << "Success, saved engine to " << engineName<< std::endl;
 
     Util::checkCudaErrorCode(cudaStreamDestroy(profileStream));
     return true;
