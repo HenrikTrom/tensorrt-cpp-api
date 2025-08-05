@@ -1,7 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <spdlog/spdlog.h>
-#include "util/Util.h"
+#include "tensorrt-cpp-api/util/Util.h"
 
 template <typename T>
 bool Engine<T>::runInference(const std::vector<std::vector<cv::cuda::GpuMat>> &inputs,

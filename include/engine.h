@@ -11,11 +11,11 @@
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "IEngine.h"
-#include "logger.h"
+#include "tensorrt-cpp-api/interfaces/IEngine.h"
+#include "tensorrt-cpp-api/util/Util.h"
+#include "tensorrt-cpp-api/util/Stopwatch.h"
 #include "Int8Calibrator.h"
-#include "util/Util.h"
-#include "util/Stopwatch.h"
+#include "logger.h"
 #include "macros.h"
 
 // Precision used for GPU inference

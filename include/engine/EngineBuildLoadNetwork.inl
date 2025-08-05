@@ -1,7 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <spdlog/spdlog.h>
-#include "util/Util.h"
+#include "tensorrt-cpp-api/util/Util.h"
 
 template <typename T>
 bool Engine<T>::buildLoadNetwork(std::string onnxModelPath, const std::array<float, 3> &subVals, const std::array<float, 3> &divVals,
