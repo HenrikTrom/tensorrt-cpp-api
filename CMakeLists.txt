@@ -101,6 +101,6 @@ install(FILES
 )
 # Installs all header files (*.h, *.inl) from your include/ folder to: ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 install(DIRECTORY include/ 
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
 ) 
