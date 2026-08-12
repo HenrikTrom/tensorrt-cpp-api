@@ -11,9 +11,9 @@
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "tensorrt-cpp-api/interfaces/IEngine.h"
-#include "tensorrt-cpp-api/util/Util.h"
-#include "tensorrt-cpp-api/util/Stopwatch.h"
+#include "interfaces/IEngine.h"
+#include "util/Util.h"
+#include "util/Stopwatch.h"
 #include "Int8Calibrator.h"
 #include "logger.h"
 #include "macros.h"

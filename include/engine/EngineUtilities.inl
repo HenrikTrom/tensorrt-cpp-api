@@ -95,32 +95,36 @@ cv::cuda::GpuMat Engine<T>::blobFromGpuMats(const std::vector<cv::cuda::GpuMat> 
     CHECK(!batchInput.empty())
     CHECK(batchInput[0].channels() == 3)
     
-    cv::cuda::GpuMat gpu_dst(1, batchInput[0].rows * batchInput[0].cols * batchInput.size(), CV_8UC3);
+    static thread_local cv::cuda::GpuMat gpu_dst;
+    static thread_local cv::cuda::GpuMat mfloat;
 
-    size_t width = batchInput[0].cols * batchInput[0].rows;
+    const int rows = batchInput[0].rows;
+    const int cols = batchInput[0].cols;
+    gpu_dst.create(1, cols * rows * static_cast<int>(batchInput.size()), CV_8UC3);
+
+    size_t width = cols * rows;
     if (swapRB) {
         for (size_t img = 0; img < batchInput.size(); ++img) {
             std::vector<cv::cuda::GpuMat> input_channels{
-                cv::cuda::GpuMat(batchInput[0].rows, batchInput[0].cols, CV_8U, &(gpu_dst.ptr()[width * 2 + width * 3 * img])),
-                cv::cuda::GpuMat(batchInput[0].rows, batchInput[0].cols, CV_8U, &(gpu_dst.ptr()[width + width * 3 * img])),
-                cv::cuda::GpuMat(batchInput[0].rows, batchInput[0].cols, CV_8U, &(gpu_dst.ptr()[0 + width * 3 * img]))};
+                cv::cuda::GpuMat(rows, cols, CV_8U, &(gpu_dst.ptr()[width * 2 + width * 3 * img])),
+                cv::cuda::GpuMat(rows, cols, CV_8U, &(gpu_dst.ptr()[width + width * 3 * img])),
+                cv::cuda::GpuMat(rows, cols, CV_8U, &(gpu_dst.ptr()[0 + width * 3 * img]))};
             cv::cuda::split(batchInput[img], input_channels); // HWC -> CHW
         }
     } else {
         for (size_t img = 0; img < batchInput.size(); ++img) {
             std::vector<cv::cuda::GpuMat> input_channels{
-                cv::cuda::GpuMat(batchInput[0].rows, batchInput[0].cols, CV_8U, &(gpu_dst.ptr()[0 + width * 3 * img])),
-                cv::cuda::GpuMat(batchInput[0].rows, batchInput[0].cols, CV_8U, &(gpu_dst.ptr()[width + width * 3 * img])),
-                cv::cuda::GpuMat(batchInput[0].rows, batchInput[0].cols, CV_8U, &(gpu_dst.ptr()[width * 2 + width * 3 * img]))};
+                cv::cuda::GpuMat(rows, cols, CV_8U, &(gpu_dst.ptr()[0 + width * 3 * img])),
+                cv::cuda::GpuMat(rows, cols, CV_8U, &(gpu_dst.ptr()[width + width * 3 * img])),
+                cv::cuda::GpuMat(rows, cols, CV_8U, &(gpu_dst.ptr()[width * 2 + width * 3 * img]))};
             cv::cuda::split(batchInput[img], input_channels); // HWC -> CHW
         }
     }
-    cv::cuda::GpuMat mfloat;
     if (normalize) {
-        // [0.f, 1.f]
+        mfloat.create(gpu_dst.size(), CV_32FC3);
         gpu_dst.convertTo(mfloat, CV_32FC3, 1.f / 255.f);
     } else {
-        // [0.f, 255.f]
+        mfloat.create(gpu_dst.size(), CV_32FC3);
         gpu_dst.convertTo(mfloat, CV_32FC3);
     }
 

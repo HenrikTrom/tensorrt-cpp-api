@@ -1,6 +1,7 @@
 #include "cmd_line_parser.h"
 #include "logger.h"
 #include "engine.h"
+#include "util/Util.h"
 #include <chrono>
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -11,6 +12,10 @@ int main(int argc, char *argv[]) {
     std::string logLevelStr = getLogLevelFromEnvironment();
     spdlog::level::level_enum logLevel = toSpdlogLevel(logLevelStr);
     spdlog::set_level(logLevel);
+
+    if (!Util::ensureCudaDeviceAvailable()) {
+        return -1;
+    }
 
     // Parse the command line arguments
     if (!parseArguments(argc, argv, arguments)) {
